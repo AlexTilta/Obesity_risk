@@ -2,61 +2,41 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-
-# Путь к папке с данными
 DATA_DIR = BASE_DIR / "data"
-
-# Путь к сырому датасету (как в вашем репозитории)
-RAW_DATA_PATH = BASE_DIR / "ObesityDataSet.csv" 
-
-# Путь к подготовленному датасету (как в вашем ноутбуке 02_ML)
+RAW_DATA_PATH = BASE_DIR / "ObesityDataSet.csv"
 PREPARED_DATA_PATH = DATA_DIR / "prepared_data.csv"
-
-# Путь для сохранения обученных моделей
 MODELS_DIR = BASE_DIR / "models"
-os.makedirs(MODELS_DIR, exist_ok=True) # Создаем папку, если ее нет
 
-# Глобальный random state для воспроизводимости результатов
+os.makedirs(MODELS_DIR, exist_ok=True)
+
 RANDOM_STATE = 42
 
-# Название целевой переменной
 TARGET_COLUMN = 'NObeyesdad'
-
-# Список антропометрических признаков
 ANTHROPOMETRICS = ['Height', 'Weight', 'BMI']
 
-# Для варианта "Без BMI, но с Ростом и Весом"
-# (Удаляем только таргет и BMI)
+# Конфигурации для экспериментов с признаками
 COLUMNS_TO_DROP_HEIGHT_WEIGHT_ONLY = [TARGET_COLUMN, 'BMI']
-
-# Для варианта "С BMI, но без Роста и Веса"
-# (Удаляем таргет, Height, Weight)
 COLUMNS_TO_DROP_BMI_ONLY = [TARGET_COLUMN, 'Height', 'Weight']
-
-# Для варианта "Без BMI, без Роста и Веса"
-# (Удаляем таргет и все антропометрические признаки)
 COLUMNS_TO_DROP_ANTHROPOMETRICS_EXCLUDED = [TARGET_COLUMN] + ANTHROPOMETRICS
 
-# Эти колонки CatBoost должен обрабатывать как категориальные,
-# даже если они уже закодированы числами (например, Gender).
+# Категориальные признаки для CatBoost
 CAT_FEATURES = [
-    'Gender', 
-    'family_history_with_overweight', 
-    'FCVC', 
-    'FAVC', 
-    'CAEC', 
-    'CH2O', 
-    'SMOKE', 
-    'SCC', 
-    'CALC', 
-    'MTRANS', 
-    'NCP', 
-    'FAF', 
+    'Gender',
+    'family_history_with_overweight',
+    'FCVC',
+    'FAVC',
+    'CAEC',
+    'CH2O',
+    'SMOKE',
+    'SCC',
+    'CALC',
+    'MTRANS',
+    'NCP',
+    'FAF',
     'TUE'
 ]
 
-# Выносим сюда, так как они используются в предобработке данных.
-
+# Словари для предобработки категориальных признаков
 CAEC_CALC_MAP = {'no': 0, 'Sometimes': 1, 'Frequently': 2, 'Always': 3}
 FCVC_MAP = {'no': 0, 'Sometimes': 1, 'Always': 2}
 NCP_MAP = {'1-2': 1.5, '3': 3.0, '>3': 3.5}
@@ -65,7 +45,6 @@ FAF_TUE_MAP = {'0': 0, 'no': 0, '0-2': 1, '1-2': 1, '2-4': 3, '3-5': 4, '4-5': 4
 YES_NO_MAP = {'yes': 1.0, 'no': 0.0}
 GENDER_MAP = {'Male': 1.0, 'Female': 0.0}
 
-# Человекочитаемые названия моделей
 MODEL_NAMES = {
     "log_reg": "Логистическая регрессия",
     "svm": "Модель SVM",
@@ -75,7 +54,6 @@ MODEL_NAMES = {
     "cat_boost": "CatBoost"
 }
 
-# Человекочитаемые названия метрик для таблиц
 METRIC_COLUMNS = {
     "F1": "F1-Score",
     "ACCURACY": "Accuracy",
