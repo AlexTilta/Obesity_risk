@@ -1,2 +1,4 @@
 gemini.md
 .DS_Store
+.venv/
+venv/
