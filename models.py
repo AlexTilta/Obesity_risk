@@ -1,10 +1,3 @@
-# src/models.py
-
-"""
-Модуль для обучения, кросс-валидации и оценки моделей.
-Содержит функции для расчета метрик, вывода отчетов и визуализации.
-"""
-
 import time
 import numpy as np
 import pandas as pd
@@ -20,7 +13,7 @@ from sklearn.metrics import (
     accuracy_score
 )
 
-from src.config import (
+from config import (
     METRIC_COLUMNS,
     RANDOM_STATE,
     TARGET_COLUMN
@@ -31,25 +24,12 @@ sns.set_theme(style="whitegrid")
 
 
 def calculate_metrics(y_true, y_pred, y_proba) -> dict:
-    """
-    Рассчитывает основные метрики для многоклассовой классификации.
     
-    Args:
-        y_true: Истинные метки классов.
-        y_pred: Предсказанные метки классов.
-        y_proba: Предсказанные вероятности классов.
-        
-    Returns:
-        dict: Словарь с метриками.
-    """
     # Получаем все классы, чтобы отчет был корректным
     labels = np.unique(y_true)
     
-    # Classification report (возвращает словарь)
     report = classification_report(y_true, y_pred, labels=labels, output_dict=True, zero_division=0)
     
-    # Считаем LogLoss и ROC_AUC
-    # Оборачиваем в try/except на случай, если в выборке оказался только 1 класс
     try:
         logloss = log_loss(y_true, y_proba, labels=labels)
     except Exception:
@@ -78,47 +58,27 @@ def evaluate_model_cv(
     results_dict: dict, 
     n_splits: int = 5
 ) -> dict:
-    """
-    Оценивает модель с помощью кросс-валидации, сохраняет метрики и время.
-    
-    Args:
-        pipeline: Модель (Pipeline или CatBoostClassifier).
-        x: Признаки.
-        y: Целевая переменная.
-        model_name: Название модели для отчета.
-        results_dict: Словарь, куда будут записаны результаты.
-        n_splits: Количество фолдов для кросс-валидации.
-        
-    Returns:
-        dict: Обновленный словарь с результатами.
-    """
     print(f"\n--- Оценка модели: {model_name} (CV, {n_splits} фолдов) ---")
     
-    # Для CatBoost метод кросс-валидации может отличаться, 
-    # но cross_val_predict работает и с ним (если включен verbose=False)
     cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE)
     
     start_time = time.time()
     
     # Предсказание классов
     y_pred_cv = cross_val_predict(pipeline, x, y, cv=cv, n_jobs=-1)
-    
-    # Предсказание вероятностей (нужно для LogLoss и ROC_AUC)
+
     try:
         y_proba_cv = cross_val_predict(pipeline, x, y, cv=cv, n_jobs=-1, method='predict_proba')
     except AttributeError:
-        # Если модель не поддерживает вероятности (например, SVC без probability=True)
         print("ВНИМАНИЕ: Модель не поддерживает predict_proba. LogLoss и ROC_AUC будут NaN.")
         y_proba_cv = None
         
     end_time = time.time()
     cv_time = end_time - start_time
 
-    # Рассчитываем метрики
     if y_proba_cv is not None:
         metrics = calculate_metrics(y, y_pred_cv, y_proba_cv)
     else:
-        # Если нет вероятностей, считаем только те метрики, которые возможны
         report = classification_report(y, y_pred_cv, output_dict=True, zero_division=0)
         metrics = {
             METRIC_COLUMNS["F1"]: report['weighted avg']['f1-score'],
@@ -129,7 +89,6 @@ def evaluate_model_cv(
             METRIC_COLUMNS["ROC_AUC"]: np.nan,
         }
 
-    # Добавляем время
     metrics[METRIC_COLUMNS["TIME"]] = cv_time
 
     # Сохраняем в общий словарь

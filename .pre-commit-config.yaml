@@ -1,0 +1,29 @@
+# .pre-commit-config.yaml
+
+# Минимальная версия pre-commit, которая поддерживает этот конфиг
+minimum_pre_commit_version: '2.9.2'
+
+repos:
+  # 1. Базовые проверки на "мусор" в файлах
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace          # Удаляет лишние пробелы в конце строк
+      - id: end-of-file-fixer            # Добавляет пустую строку в конец файла, если ее нет
+      - id: check-yaml                   # Проверяет синтаксис YAML-файлов
+      - id: check-added-large-files      # Блокирует коммит слишком больших файлов (например, весов моделей)
+        args: ['--maxkb=1000']           # Максимальный размер файла — 1000 КБ (1 МБ)
+
+  # 2. Black — форматирование кода (как в эталонном проекте)
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        language_version: python3
+
+  # 3. Flake8 — линтер для поиска ошибок и стиля (как в эталонном проекте)
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        additional_dependencies: [flake8-bugbear] # Полезное дополнение для поиска потенциальных багов

@@ -11,31 +11,19 @@ import pandas as pd
 import numpy as np
 import joblib
 
-from src.config import (
+from config import (
     MODELS_DIR,
     TARGET_COLUMN,
     COLUMNS_TO_DROP_BMI_ONLY,
     COLUMNS_TO_DROP_ANTHROPOMETRICS_EXCLUDED
 )
-from src.data_loader import preprocess_data
+from data_loader import preprocess_data
 
 
 class ObesityPredictor:
-    """
-    Класс-обертка для инференса модели предсказания ожирения.
-    Поддерживает два режима работы:
-      - 'bmi': использует индекс массы тела (не требует роста и веса).
-      - 'no_anthro': не использует антропометрию (только привычки).
-    """
 
     def __init__(self, model_name: str = "random_forest", mode: str = "bmi"):
-        """
-        Инициализация предиктора.
         
-        Args:
-            model_name: Имя файла модели без расширения (например, 'random_forest').
-            mode: Режим работы ('bmi' или 'no_anthro').
-        """
         self.mode = mode
         self.model = None
         self.model_path = os.path.join(MODELS_DIR, f"{model_name}_{mode}.joblib")
@@ -43,7 +31,6 @@ class ObesityPredictor:
         self._load_model()
 
     def _load_model(self):
-        """Загружает модель с диска."""
         if not os.path.exists(self.model_path):
             raise FileNotFoundError(
                 f"Модель не найдена по пути: {self.model_path}. "

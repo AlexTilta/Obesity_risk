@@ -3,7 +3,8 @@ __pycache__/
 *.py[cod]
 
 # Файлы конфигурации для venv
-venv/
+.venv
+venv
 
 # Файлы дистрибутивов и артефакты упаковки
 dist/
@@ -24,8 +25,5 @@ dist/
 .idea
 .vscode
 
-.venv
-venv
-pycache
 *.pyc
 .ipynb_checkpoints

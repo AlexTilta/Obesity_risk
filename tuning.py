@@ -1,11 +1,3 @@
-# src/tuning.py
-
-"""
-Модуль для подбора гиперпараметров моделей машинного обучения с помощью Optuna.
-Каждая функция возвращает готовый к использованию пайплайн (Pipeline) 
-с лучшими найденными параметрами.
-"""
-
 import warnings
 import optuna
 import numpy as np
@@ -22,21 +14,13 @@ from sklearn.exceptions import ConvergenceWarning
 
 from catboost import CatBoostClassifier, Pool, cv
 
-# Импортируем константы из конфига
-from src.config import RANDOM_STATE
+from config import RANDOM_STATE
 
-# Отключаем лишние предупреждения (например, о сходимости)
 warnings.filterwarnings('ignore', category=ConvergenceWarning)
 warnings.filterwarnings('ignore', category=UserWarning)
 
 
-# ==============================================================================
-# 1. ЛОГИСТИЧЕСКАЯ РЕГРЕССИЯ
-# ==============================================================================
 def tune_logistic_regression(X_train, Y_train, n_trials: int = 50) -> make_pipeline:
-    """
-    Подбирает гиперпараметры для LogisticRegression.
-    """
     n_classes = len(Y_train.unique())
 
     def objective(trial: Trial) -> float:
