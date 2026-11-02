@@ -12,9 +12,6 @@ exclude = '''
   | _build
   | buck-out
   | build
-  | dist
-  | notebooks
-  | data
 )/
 '''
 
