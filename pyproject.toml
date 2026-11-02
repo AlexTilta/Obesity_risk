@@ -1,0 +1,62 @@
+[tool.black]
+line-length = 89
+target-version = ['py310']
+include = '\.py$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | notebooks
+  | data
+)/
+'''
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 89
+
+[tool.pytest.ini_options]
+markers = [
+    "local: marks tests that don't work remotely, e.g. those that require data",
+]
+
+[project]
+name = "cirrhosis-prediction"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "DK"}
+]
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "pandas (>=3.0.6,<4.0.0)",
+    "scikit-learn (>=1.9.1,<2.0.0)",
+    "imbalanced-learn (>=0.14.2,<0.15.0)",
+    "optuna (>=5.0.0,<6.0.0)",
+    "seaborn (>=0.13.2,<0.14.0)",
+    "matplotlib (>=3.11.2,<4.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "jupyter (>=1.1.1,<2.0.0)",
+    "flake8 (>=7.4.1,<8.0.0)",
+    "black (>=26.5.1,<27.0.0)",
+    "pre-commit (>=4.6.2,<5.0.0)"
+]
