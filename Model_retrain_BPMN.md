@@ -1,0 +1,1 @@
+<img src="images/retrain_diagram.png" alt="BPMN-диаграмма" width="100%">
