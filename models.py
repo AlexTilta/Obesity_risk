@@ -19,7 +19,9 @@ sns.set_theme(style="whitegrid")
 
 def calculate_metrics(y_true, y_pred, y_proba) -> dict:
     labels = np.unique(y_true)
-    report = classification_report(y_true, y_pred, labels=labels, output_dict=True, zero_division=0)
+    report = classification_report(
+        y_true, y_pred, labels=labels, output_dict=True, zero_division=0
+    )
 
     try:
         logloss = log_loss(y_true, y_proba, labels=labels)
@@ -27,21 +29,25 @@ def calculate_metrics(y_true, y_pred, y_proba) -> dict:
         logloss = np.nan
 
     try:
-        roc_auc = roc_auc_score(y_true, y_proba, multi_class='ovr', average='weighted', labels=labels)
+        roc_auc = roc_auc_score(
+            y_true, y_proba, multi_class="ovr", average="weighted", labels=labels
+        )
     except Exception:
         roc_auc = np.nan
 
     return {
-        METRIC_COLUMNS["F1"]: report['weighted avg']['f1-score'],
-        METRIC_COLUMNS["ACCURACY"]: report['accuracy'],
+        METRIC_COLUMNS["F1"]: report["weighted avg"]["f1-score"],
+        METRIC_COLUMNS["ACCURACY"]: report["accuracy"],
         METRIC_COLUMNS["LogLoss"]: logloss,
-        METRIC_COLUMNS["RECALL"]: report['weighted avg']['recall'],
-        METRIC_COLUMNS["PRECISION"]: report['weighted avg']['precision'],
+        METRIC_COLUMNS["RECALL"]: report["weighted avg"]["recall"],
+        METRIC_COLUMNS["PRECISION"]: report["weighted avg"]["precision"],
         METRIC_COLUMNS["ROC_AUC"]: roc_auc,
     }
 
 
-def evaluate_model_cv(pipeline, x, y, model_name: str, results_dict: dict, n_splits: int = 5) -> dict:
+def evaluate_model_cv(
+    pipeline, x, y, model_name: str, results_dict: dict, n_splits: int = 5
+) -> dict:
     print(f"\n--- Оценка модели: {model_name} (CV, {n_splits} фолдов) ---")
     cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE)
 
@@ -49,9 +55,14 @@ def evaluate_model_cv(pipeline, x, y, model_name: str, results_dict: dict, n_spl
     y_pred_cv = cross_val_predict(pipeline, x, y, cv=cv, n_jobs=-1)
 
     try:
-        y_proba_cv = cross_val_predict(pipeline, x, y, cv=cv, n_jobs=-1, method='predict_proba')
+        y_proba_cv = cross_val_predict(
+            pipeline, x, y, cv=cv, n_jobs=-1, method="predict_proba"
+        )
     except AttributeError:
-        print("ВНИМАНИЕ: Модель не поддерживает predict_proba. LogLoss и ROC_AUC будут NaN.")
+        print(
+            "ВНИМАНИЕ: Модель не поддерживает predict_proba."
+            " LogLoss и ROC_AUC будут NaN."
+        )
         y_proba_cv = None
 
     cv_time = time.time() - start_time
@@ -61,11 +72,11 @@ def evaluate_model_cv(pipeline, x, y, model_name: str, results_dict: dict, n_spl
     else:
         report = classification_report(y, y_pred_cv, output_dict=True, zero_division=0)
         metrics = {
-            METRIC_COLUMNS["F1"]: report['weighted avg']['f1-score'],
-            METRIC_COLUMNS["ACCURACY"]: report['accuracy'],
+            METRIC_COLUMNS["F1"]: report["weighted avg"]["f1-score"],
+            METRIC_COLUMNS["ACCURACY"]: report["accuracy"],
             METRIC_COLUMNS["LogLoss"]: np.nan,
-            METRIC_COLUMNS["RECALL"]: report['weighted avg']['recall'],
-            METRIC_COLUMNS["PRECISION"]: report['weighted avg']['precision'],
+            METRIC_COLUMNS["RECALL"]: report["weighted avg"]["recall"],
+            METRIC_COLUMNS["PRECISION"]: report["weighted avg"]["precision"],
             METRIC_COLUMNS["ROC_AUC"]: np.nan,
         }
 
@@ -86,15 +97,19 @@ def plot_confusion_matrix(y_true, y_pred, model_name: str):
     cm = confusion_matrix(y_true, y_pred, labels=labels)
 
     plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=labels, yticklabels=labels)
-    plt.xlabel('Predicted Label')
-    plt.ylabel('True Label')
-    plt.title(f'Confusion Matrix - {model_name}')
+    sns.heatmap(
+        cm, annot=True, fmt="d", cmap="Blues", xticklabels=labels, yticklabels=labels
+    )
+    plt.xlabel("Predicted Label")
+    plt.ylabel("True Label")
+    plt.title(f"Confusion Matrix - {model_name}")
     plt.tight_layout()
     plt.show()
 
 
-def evaluate_on_test(pipeline, x_train, y_train, x_test, y_test, model_name: str) -> dict:
+def evaluate_on_test(
+    pipeline, x_train, y_train, x_test, y_test, model_name: str
+) -> dict:
     print(f"\n=== Финальное обучение и тест: {model_name} ===")
 
     start_time = time.time()
@@ -108,13 +123,15 @@ def evaluate_on_test(pipeline, x_train, y_train, x_test, y_test, model_name: str
         y_proba_test = pipeline.predict_proba(x_test)
         metrics = calculate_metrics(y_test, y_pred_test, y_proba_test)
     except AttributeError:
-        report = classification_report(y_test, y_pred_test, output_dict=True, zero_division=0)
+        report = classification_report(
+            y_test, y_pred_test, output_dict=True, zero_division=0
+        )
         metrics = {
-            METRIC_COLUMNS["F1"]: report['weighted avg']['f1-score'],
-            METRIC_COLUMNS["ACCURACY"]: report['accuracy'],
+            METRIC_COLUMNS["F1"]: report["weighted avg"]["f1-score"],
+            METRIC_COLUMNS["ACCURACY"]: report["accuracy"],
             METRIC_COLUMNS["LogLoss"]: np.nan,
-            METRIC_COLUMNS["RECALL"]: report['weighted avg']['recall'],
-            METRIC_COLUMNS["PRECISION"]: report['weighted avg']['precision'],
+            METRIC_COLUMNS["RECALL"]: report["weighted avg"]["recall"],
+            METRIC_COLUMNS["PRECISION"]: report["weighted avg"]["precision"],
             METRIC_COLUMNS["ROC_AUC"]: np.nan,
         }
 
@@ -131,15 +148,19 @@ def format_results_table(results_dict: dict) -> pd.DataFrame:
         print("Словарь результатов пуст.")
         return pd.DataFrame()
 
-    df = pd.DataFrame.from_dict(results_dict, orient='index')
+    df = pd.DataFrame.from_dict(results_dict, orient="index")
 
     if METRIC_COLUMNS["F1"] in df.columns:
         df = df.sort_values(by=METRIC_COLUMNS["F1"], ascending=False)
 
-    pd.options.display.float_format = '{:.4f}'.format
+    pd.options.display.float_format = "{:.4f}".format
 
     if METRIC_COLUMNS["TIME"] in df.columns:
-        df[METRIC_COLUMNS["TIME"]] = pd.to_numeric(df[METRIC_COLUMNS["TIME"]], errors='coerce')
-        df[METRIC_COLUMNS["TIME"]] = df[METRIC_COLUMNS["TIME"]].apply(lambda x: f'{x:.2f}')
+        df[METRIC_COLUMNS["TIME"]] = pd.to_numeric(
+            df[METRIC_COLUMNS["TIME"]], errors="coerce"
+        )
+        df[METRIC_COLUMNS["TIME"]] = df[METRIC_COLUMNS["TIME"]].apply(
+            lambda x: f"{x:.2f}"
+        )
 
     return df

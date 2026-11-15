@@ -27,6 +27,9 @@ markers = [
     "local: marks tests that don't work remotely, e.g. those that require data",
 ]
 
+[tool.poetry]
+virtualenvs.in-project = true
+
 [project]
 name = "obesity-risk"
 version = "0.1.0"

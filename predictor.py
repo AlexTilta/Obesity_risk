@@ -30,15 +30,15 @@ class ObesityPredictor:
         df_raw = pd.DataFrame([input_data])
         df_transformed = preprocess_data(df_raw)
 
-        if self.mode == 'bmi':
+        if self.mode == "bmi":
             df_transformed = df_transformed.drop(
                 columns=COLUMNS_TO_DROP_BMI_ONLY,
-                errors='ignore',
+                errors="ignore",
             )
-        elif self.mode == 'no_anthro':
+        elif self.mode == "no_anthro":
             df_transformed = df_transformed.drop(
                 columns=COLUMNS_TO_DROP_ANTHROPOMETRICS_EXCLUDED,
-                errors='ignore',
+                errors="ignore",
             )
 
         return df_transformed
@@ -53,7 +53,10 @@ class ObesityPredictor:
         try:
             probabilities = self.model.predict_proba(df_prepared)[0]
             classes = self.model.classes_
-            proba_dict = {str(cls): float(prob) for cls, prob in zip(classes, probabilities)}
+            pairs = zip(classes, probabilities)
+            proba_dict = {
+                str(cls): float(prob) for cls, prob in pairs
+            }
         except AttributeError:
             proba_dict = {}
 
@@ -69,12 +72,14 @@ class ObesityPredictor:
         df_raw = pd.DataFrame(input_data_list)
         df_transformed = preprocess_data(df_raw)
 
-        if self.mode == 'bmi':
-            df_transformed = df_transformed.drop(columns=COLUMNS_TO_DROP_BMI_ONLY, errors='ignore')
-        elif self.mode == 'no_anthro':
+        if self.mode == "bmi":
+            df_transformed = df_transformed.drop(
+                columns=COLUMNS_TO_DROP_BMI_ONLY, errors="ignore"
+            )
+        elif self.mode == "no_anthro":
             df_transformed = df_transformed.drop(
                 columns=COLUMNS_TO_DROP_ANTHROPOMETRICS_EXCLUDED,
-                errors='ignore',
+                errors="ignore",
             )
 
         predictions = self.model.predict(df_transformed)
@@ -90,8 +95,9 @@ class ObesityPredictor:
         for i, pred in enumerate(predictions):
             res = {"prediction": str(pred), "probabilities": {}}
             if probabilities is not None:
+                pairs = zip(classes, probabilities[i])
                 res["probabilities"] = {
-                    str(cls): float(prob) for cls, prob in zip(classes, probabilities[i])
+                    str(cls): float(prob) for cls, prob in pairs
                 }
             results.append(res)
 
